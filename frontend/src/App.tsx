@@ -51,44 +51,52 @@ function App() {
   useEffect(() => {
     dispatch(getCurrentUserAsync());
     
-    // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // User is signed in
-        try {
-          const idToken = await user.getIdToken();
-          localStorage.setItem("idToken", idToken);
-          // Update auth state
-          dispatch({
-            type: 'auth/getCurrentUser/fulfilled',
-            payload: {
-              uid: user.uid,
-              email: user.email,
-              displayName: user.displayName,
-              photoURL: user.photoURL,
-              emailVerified: user.emailVerified,
-              isAnonymous: user.isAnonymous,
-              tenantId: user.tenantId,
-              providerData: user.providerData,
-              metadata: {
-                creationTime: user.metadata.creationTime,
-                lastSignInTime: user.metadata.lastSignInTime,
+    // Listen for auth state changes only if auth is properly initialized
+    let unsubscribe = () => {};
+    if (auth) {
+      // Listen for auth state changes
+      unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          // User is signed in
+          try {
+            const idToken = await user.getIdToken();
+            localStorage.setItem("idToken", idToken);
+            // Update auth state
+            dispatch({
+              type: 'auth/getCurrentUser/fulfilled',
+              payload: {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+                emailVerified: user.emailVerified,
+                isAnonymous: user.isAnonymous,
+                tenantId: user.tenantId,
+                providerData: user.providerData,
+                metadata: {
+                  creationTime: user.metadata.creationTime,
+                  lastSignInTime: user.metadata.lastSignInTime,
+                }
               }
-            }
-          });
-        } catch (error) {
-          console.error("Error getting ID token:", error);
+            });
+          } catch (error) {
+            console.error("Error getting ID token:", error);
+            dispatch(logout());
+          }
+        } else {
+          // User is signed out
           dispatch(logout());
         }
-      } else {
-        // User is signed out
-        dispatch(logout());
-      }
-    });
+      });
+    } else {
+      console.warn("Firebase auth not initialized - auth state listener not set up");
+      // If auth is not initialized, ensure the user is logged out in the app state
+      dispatch(logout());
+    }
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [dispatch]);
+  }, [dispatch, auth]);
 
   if (loading) {
     // You should import Loader at the top if you want to use it

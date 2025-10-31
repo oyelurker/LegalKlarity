@@ -12,6 +12,7 @@ import { getAuth, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../hooks/redux';
 import { getCurrentUserAsync } from '../store/authSlice';
+import { auth } from '../utils/firebase';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -32,9 +33,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
     }
     
     // Firebase logout
-    const auth = getAuth();
-    if (auth) {
+    if (auth && auth.currentUser) {
       await signOut(auth);
+    } else {
+      // When Firebase is not initialized, just handle local logout
+      console.log("Firebase not initialized - performing local logout only");
     }
     localStorage.removeItem("idToken");
     dispatch(getCurrentUserAsync());

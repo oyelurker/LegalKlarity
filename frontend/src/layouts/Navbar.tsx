@@ -25,7 +25,13 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      // Only try to sign out with Firebase if auth is properly initialized
+      if (auth && auth.currentUser) {
+        await signOut(auth);
+      } else {
+        // When Firebase is not initialized, just handle local logout
+        console.log("Firebase not initialized - performing local logout only");
+      }
       localStorage.removeItem("idToken");
       dispatch(logout()); // Dispatch the logout action instead of getCurrentUserAsync
       navigate("/");

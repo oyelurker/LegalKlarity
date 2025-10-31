@@ -55,6 +55,7 @@ const agreementSummary = asyncHandler(async (req: MulterRequest, res: Response) 
     }
 
     let fileStream: fs.ReadStream | null = null;
+    let agreementText: string | undefined;
     
     try {
         // file.path is the path to the file saved by multer
@@ -68,7 +69,7 @@ const agreementSummary = asyncHandler(async (req: MulterRequest, res: Response) 
             },
         });
 
-        let agreementText = modelResponse.data.extracted_text.replace(/\n/g, '\n');
+        agreementText = modelResponse.data.extracted_text.replace(/\n/g, '\n');
 
     // console.log("Agreement text extracted ", agreementText);
 
@@ -81,6 +82,35 @@ const agreementSummary = asyncHandler(async (req: MulterRequest, res: Response) 
             details: 'Failed to retrieve agreement text',
         });
         throw new ApiError(500, 'Failed to retrieve agreement text from ai model');
+    }
+
+    } catch (error: any) {
+        console.error("Agreement summary error:", error.response?.data || error.message || error);
+        await createAuditLog({
+            uid,
+            action: 'AGREEMENT_SUMMARY',
+            status: 'failure',
+            entityType: 'Agreement',
+            details: error.message || 'Unknown error in agreement summary',
+        });
+        
+        // Provide more specific error messages
+        if (error.code === 'ECONNABORTED') {
+            throw new ApiError(500, 'Content analyzer service timed out. Please try again later.');
+        } else if (error.response?.status === 400) {
+            throw new ApiError(400, `Content analyzer rejected the file: ${error.response.data?.error || 'Invalid file'}`);
+        } else if (error.response?.status === 500) {
+            throw new ApiError(500, `Content analyzer service error: ${error.response.data?.error || 'Internal server error'}`);
+        } else if (error.response?.status) {
+            throw new ApiError(error.response.status, `Content analyzer service error (${error.response.status}): ${error.response.data?.error || 'Unknown error'}`);
+        }
+        
+        throw new ApiError(500, 'Failed to perform agreement summary: ' + (error.message || 'Unknown error'));
+    } finally {
+        // Close the file stream if it was opened
+        if (fileStream) {
+            fileStream.destroy();
+        }
     }
 
     const useMockApi = process.env.USE_MOCK_API === 'true';
