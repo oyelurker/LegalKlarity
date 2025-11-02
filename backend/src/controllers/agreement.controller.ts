@@ -376,7 +376,11 @@ const agreementSummary = asyncHandler(async (req: MulterRequest, res: Response) 
         return res.status(200).json(
             new ApiResponse(200, geminiResponse, 'Agreement summarized successfully')
         );
-
+    } finally {
+        // This finally block ensures the try block at line 303 is properly closed
+        // before the outer catch block at line 352 (shifted due to this addition)
+    }
+    
     } catch (error: any) {
         // Handle quota exceeded error specifically
         if (error.statusCode === 429 || (error.message && error.message.includes('quota'))) {
