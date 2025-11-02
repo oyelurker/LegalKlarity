@@ -8,11 +8,14 @@ import {
   Settings, 
   LogOut
 } from 'lucide-react';
-import { getAuth, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch } from '../hooks/redux';
 import { getCurrentUserAsync } from '../store/authSlice';
-import { auth } from '../utils/firebase';
+import { auth as fbAuth } from '../utils/firebase';
+import type { Auth } from 'firebase/auth';
+
+const auth: Auth | null = fbAuth;
 
 interface DashboardLayoutProps {
   children: ReactNode;

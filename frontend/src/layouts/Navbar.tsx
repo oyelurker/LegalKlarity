@@ -7,7 +7,10 @@ import { logout } from "../store/authSlice";
 import { Menu, X, User, LogOut, Home, FileText, Users, BookOpen, Info, Mail } from "lucide-react";
 
 import ThemeToggle from "../components/ThemeToggle";
-import { auth } from "../utils/firebase";
+import { auth as fbAuth } from "../utils/firebase";
+import type { Auth } from "firebase/auth";
+
+const auth: Auth | null = fbAuth;
 
 const Navbar = () => {
   const dispatch = useAppDispatch();

@@ -14,9 +14,11 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
+import type { Auth } from 'firebase/auth';
+
 // Check if Firebase app is already initialized to avoid duplicate initialization
 let app;
-let auth = null;
+let auth: Auth | null = null;
 
 if (!getApps().length) {
   // Only initialize if we have a valid API key (not empty and not the example placeholder)
@@ -25,7 +27,7 @@ if (!getApps().length) {
       app = initializeApp(firebaseConfig);
       // Only initialize auth if config is valid
       auth = getAuth(app);
-    } catch (error) {
+    } catch (error: any) {
       console.warn("Firebase config error - invalid API key or config values:", error.message);
       // Don't initialize Firebase, just create a minimal app for basic functionality
       app = initializeApp({ projectId: "mock-project" });
@@ -42,7 +44,7 @@ if (!getApps().length) {
   if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "" && firebaseConfig.apiKey !== "your-firebase-api-key-here") {
     try {
       auth = getAuth(app);
-    } catch (error) {
+    } catch (error: any) {
       console.warn("Error getting existing Firebase Auth instance:", error.message);
       auth = null;
     }

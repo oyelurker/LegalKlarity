@@ -64,8 +64,8 @@ const VideoAdvisor: React.FC = () => {
         dailyRef.current = DailyIframe.createFrame(callFrameRef.current, {
           iframeStyle: {
             position: 'absolute',
-            top: 0,
-            left: 0,
+            top: '0px',
+            left: '0px',
             width: '100%',
             height: '100%',
           },
@@ -79,7 +79,7 @@ const VideoAdvisor: React.FC = () => {
         });
 
         // Set up event listeners
-        dailyRef.current.on('participants-updated', (event) => {
+        dailyRef.current.on('participants-updated', (event: any) => {
           const participants = dailyRef.current.participants();
           setParticipants(Object.keys(participants).length);
         });

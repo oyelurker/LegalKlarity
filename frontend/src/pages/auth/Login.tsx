@@ -231,6 +231,10 @@ const Login: React.FC = () => {
         if (email) {
           // Fetch sign-in methods for this email
           import("firebase/auth").then(async (firebaseAuth) => {
+            if (!auth) {
+              console.error("Firebase auth is not initialized");
+              return;
+            }
             const methods = await firebaseAuth.fetchSignInMethodsForEmail(auth, email);
             if (methods.includes("password")) {
               toast.info("This email is registered with email/password. Please login with your password to link your Google account.");

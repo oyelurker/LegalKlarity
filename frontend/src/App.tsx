@@ -4,7 +4,10 @@ import { ToastContainer } from "react-toastify";
 import { useAppDispatch, useAppSelector } from './hooks/redux';
 import { getCurrentUserAsync, logout } from './store/authSlice';
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./utils/firebase";
+import { auth as fbAuth } from "./utils/firebase";
+import type { Auth } from "firebase/auth";
+
+const auth: Auth | null = fbAuth;
 import Navbar from './layouts/Navbar';
 import Footer from './layouts/Footer';
 import Chatbot from './pages/home/Chatbot';
@@ -56,7 +59,7 @@ function App() {
     let unsubscribe = () => {};
     if (auth) {
       // Listen for auth state changes
-      unsubscribe = onAuthStateChanged(auth, async (user) => {
+      unsubscribe = onAuthStateChanged(auth!, async (user) => {
         if (user) {
           // User is signed in
           try {

@@ -1,6 +1,15 @@
-import { Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import { authenticate } from '../middlewares/auth';
+
+// Extend Express Request type to include 'user' property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
 
 const videoAdvisorRouter = Router();
 
@@ -33,7 +42,7 @@ videoAdvisorRouter.post(
     body('advisorId').optional().isString().withMessage('Advisor ID must be a string'),
     body('duration').optional().isInt({ min: 15, max: 300 }).withMessage('Duration must be between 15 and 300 minutes'),
   ],
-  (req, res) => {
+  (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -78,7 +87,7 @@ videoAdvisorRouter.post(
   [
     body('roomId').notEmpty().withMessage('Room ID is required'),
   ],
-  (req, res) => {
+  (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -126,7 +135,7 @@ videoAdvisorRouter.post(
   [
     body('roomId').notEmpty().withMessage('Room ID is required'),
   ],
-  (req, res) => {
+  (req: Request, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
