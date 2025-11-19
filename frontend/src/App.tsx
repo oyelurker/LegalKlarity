@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useAppDispatch, useAppSelector } from './hooks/redux';
 import { getCurrentUserAsync, logout } from './store/authSlice';
@@ -8,9 +8,6 @@ import { auth as fbAuth } from "./utils/firebase";
 import type { Auth } from "firebase/auth";
 
 const auth: Auth | null = fbAuth;
-import Navbar from './layouts/Navbar';
-import Footer from './layouts/Footer';
-import Chatbot from './pages/home/Chatbot';
 
 // Eagerly loaded pages
 import About from './pages/general/About';
@@ -23,7 +20,6 @@ import ResourcesPage from './pages/resources/ResourcesPage';
 import ContactPage from './pages/contact/ContactPage';
 import SolutionsPage from './pages/solutions/SolutionsPage';
 import DemoPage from './pages/demo/DemoPage';
-// If PricingPage is not lazy-loaded, import it directly:
 import PricingPage from './pages/pricing/PricingPage';
 
 // Additional pages
@@ -35,6 +31,9 @@ import ApiPage from './pages/api/ApiPage';
 import PrivacyPage from './pages/privacy/PrivacyPage';
 import TermsPage from './pages/terms/TermsPage';
 import SecurityPage from './pages/security/SecurityPage';
+import TubelightNavbarDemo from './pages/navbar/TubelightNavbarDemo';
+import { NavBar } from './components/ui/tubelight-navbar';
+import { Home, User, FileText, Mail } from 'lucide-react';
 
 // Lazy loaded dashboard pages
 const Login = lazy(() => import("./pages/auth/Login"));
@@ -54,9 +53,9 @@ function App() {
 
   useEffect(() => {
     dispatch(getCurrentUserAsync());
-    
+
     // Listen for auth state changes only if auth is properly initialized
-    let unsubscribe = () => {};
+    let unsubscribe = () => { };
     if (auth) {
       // Listen for auth state changes
       unsubscribe = onAuthStateChanged(auth!, async (user) => {
@@ -103,61 +102,68 @@ function App() {
   }, [dispatch, auth]);
 
   if (loading) {
-    // You should import Loader at the top if you want to use it
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
   return (
-    <>
-      <div className="flex flex-col min-h-screen bg-white dark:bg-slate-900">
-        <Navbar />
-        <main className="flex-grow">
-          <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/help" element={<Help />} />
-              <Route path="/features" element={<FeaturesPage />} />
-              <Route path="/solutions" element={<SolutionsPage />} />
-              <Route path="/use-cases" element={<UseCasesPage />} />
-              <Route path="/resources" element={<ResourcesPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/demo" element={<DemoPage />} />
-              <Route path="/pricing" element={<PricingPage />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/careers" element={<CareersPage />} />
-              <Route path="/blog" element={<BlogPage />} />
-              <Route path="/press" element={<PressPage />} />
-              <Route path="/support" element={<SupportPage />} />
-              <Route path="/api" element={<ApiPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/security" element={<SecurityPage />} />
-              <Route path="/active" element={<div>frontend active</div>} />
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+      {/* Replaced the traditional Navbar with Tubelight Navbar */}
+      <NavBar
+        items={[
+          { name: 'Home', url: '/', icon: Home },
+          { name: 'About', url: '/about', icon: User },
+          { name: 'Solutions', url: '/solutions', icon: FileText },
+          { name: 'Contact', url: '/contact', icon: Mail }
+        ]}
+        actions={[
+          { name: 'Sign In', url: '/login' },
+          { name: 'Sign Up', url: '/signup', primary: true }
+        ]}
+      />
+      <main className="flex-grow">
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/features" element={<FeaturesPage />} />
+            <Route path="/role-selection-test" element={<RoleSelection />} />
+            <Route path="/use-cases" element={<UseCasesPage />} />
+            <Route path="/resources" element={<ResourcesPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/demo" element={<DemoPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/careers" element={<CareersPage />} />
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/press" element={<PressPage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="/api" element={<ApiPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/security" element={<SecurityPage />} />
+            <Route path="/solutions" element={<SolutionsPage />} />
 
-              {/* Auth routes */}
-              <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
-              <Route path="/signup" element={!isAuthenticated ? <SignUp /> : <Navigate to="/dashboard" />} />
+            {/* Auth routes */}
+            <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
+            <Route path="/signup" element={!isAuthenticated ? <SignUp /> : <Navigate to="/dashboard" />} />
 
-              {/* Dashboard (protected) routes */}
-              <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Login />} />
-              <Route path="/dashboard/ai-chatbot" element={isAuthenticated ? <AIChatbot /> : <Login />} />
-              <Route path="/dashboard/settings" element={isAuthenticated ? <Settings /> : <Login />} />
-              <Route path="/dashboard/role-selection" element={isAuthenticated ? <RoleSelection /> : <Login />} />
-              <Route path="/dashboard/agreement/summary" element={isAuthenticated ? <LegalDocumentAnalyzer /> : <Login />} />
-              <Route path="/dashboard/case/case-details" element={isAuthenticated ? <CasesList /> : <Login />} />
-              <Route path="/dashboard/process/summary" element={isAuthenticated ? <AgreementProcess /> : <Login />} />
-              <Route path="/dashboard/video-advisor" element={isAuthenticated ? <VideoAdvisor /> : <Login />} />
+            {/* Dashboard (protected) routes */}
+            <Route path="/dashboard" element={isAuthenticated ? <Dashboard /> : <Login />} />
+            <Route path="/dashboard/ai-chatbot" element={isAuthenticated ? <AIChatbot /> : <Login />} />
+            <Route path="/dashboard/settings" element={isAuthenticated ? <Settings /> : <Login />} />
+            <Route path="/dashboard/role-selection" element={isAuthenticated ? <RoleSelection /> : <Login />} />
+            <Route path="/dashboard/agreement/summary" element={isAuthenticated ? <LegalDocumentAnalyzer /> : <Login />} />
+            <Route path="/dashboard/case/case-details" element={isAuthenticated ? <CasesList /> : <Login />} />
+            <Route path="/dashboard/process/summary" element={isAuthenticated ? <AgreementProcess /> : <Login />} />
+            <Route path="/dashboard/video-advisor" element={isAuthenticated ? <VideoAdvisor /> : <Login />} />
 
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </Suspense>
-        </main>
-        <Chatbot />
-        <Footer />
-      </div>
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Suspense>
+      </main>
       <ToastContainer
         position="bottom-right"
         autoClose={3000}
@@ -170,7 +176,7 @@ function App() {
         pauseOnHover
         theme="light"
       />
-    </>
+    </div>
   );
 }
 

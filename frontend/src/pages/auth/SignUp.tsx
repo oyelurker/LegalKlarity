@@ -7,9 +7,10 @@ import Button from '../../components/common/Button';
 import { registerAsync } from '../../store/authSlice';
 import { useAppDispatch } from '../../hooks/redux';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 
 const Register: React.FC = () => {
- 
+
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
@@ -50,7 +51,7 @@ const Register: React.FC = () => {
     if (!validateForm()) return;
     setLoading(true);
     setErrors({});
-    
+
     // Check if we're in mock mode
     if (import.meta.env.VITE_USE_MOCK_API === 'true') {
       try {
@@ -61,7 +62,7 @@ const Register: React.FC = () => {
           region: formData.region,
           language: formData.language,
         })).unwrap();
-        
+
         if (result.user) {
           toast.success("Account created successfully (mock)!");
           setLoading(false);
@@ -76,13 +77,13 @@ const Register: React.FC = () => {
         return;
       }
     }
-    
+
     // Firebase registration
     try {
       if (!auth) {
         throw new Error("Firebase auth is not initialized");
       }
-      
+
       await createUserWithEmailAndPassword(auth, formData.email, formData.password);
 
       // Call backend API to create Firestore user profile via authService
@@ -94,7 +95,7 @@ const Register: React.FC = () => {
           language: formData.language,
         })).unwrap();
         // console.log("Registration result:", result); // Debug log
-        
+
         if (result.user) {
           toast.success("Account created successfully!");
           setLoading(false);
@@ -124,24 +125,35 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 dark:bg-slate-900">
-      <div className="max-w-2xl w-full space-y-8">
-        <div>
-          <div className="mx-auto h-16 w-16 rounded-full bg-primary-600 flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">LK</span>
+    <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden py-12">
+      {/* Background Elements */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-0 right-1/2 translate-x-1/2 w-[1000px] h-[600px] bg-primary/10 rounded-full blur-[120px] opacity-50" />
+        <div className="absolute bottom-0 left-0 w-[800px] h-[600px] bg-blue-600/5 rounded-full blur-[100px] opacity-30" />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-2xl w-full space-y-8 relative z-10 px-4"
+      >
+        <div className="glass-panel p-8 md:p-10 rounded-2xl shadow-2xl border border-white/20">
+          <div className="text-center">
+            <div className="mx-auto h-14 w-14 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+              <span className="text-white text-2xl font-bold">LK</span>
+            </div>
+            <h2 className="mt-6 text-3xl font-display font-bold text-foreground">
+              Create your account
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Join LegalKlarity to simplify your legal journey
+            </p>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Create your LegalKlarity account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-slate-400">
-            Sign up for an account to get started
-          </p>
-        </div>
-        
-        <div className="mt-8 bg-white py-8 px-4 shadow rounded-lg sm:px-10 dark:bg-slate-800">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
             {errors.general && (
-              <div className="bg-[#e8eaf6] border-l-4 border-[#1a237e] text-[#1a237e] px-4 py-3 rounded-lg text-sm shadow-sm mb-2 dark:bg-blue-900/20 dark:border-blue-700 dark:text-blue-200">
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm shadow-sm mb-2 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200">
                 <div className="flex items-center">
                   <span className="mr-2">⚠️</span>
                   {errors.general}
@@ -158,6 +170,7 @@ const Register: React.FC = () => {
                 error={errors.name}
                 placeholder="Enter your full name"
                 required
+                className="bg-white/50 dark:bg-slate-800/50"
               />
               <Input
                 label="Email Address"
@@ -168,67 +181,68 @@ const Register: React.FC = () => {
                 error={errors.email}
                 placeholder="your.email@gov.in"
                 required
+                className="bg-white/50 dark:bg-slate-800/50"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-black mb-1 dark:text-white">
-                Language
-              </label>
-              <select
-                id="language"
-                name="language"
-                value={formData.language}
-                onChange={handleInputChange}
-                className="block w-full px-3 py-2.5 bg-white border border-[#e6e1d5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CDA047] focus:border-[#CDA047] text-sm transition-colors dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-              >
-                <option value="en">English</option>
-                <option value="hi">Hindi (हिन्दी)</option>
-                <option value="bn">Bengali (বাংলা)</option>
-                <option value="te">Telugu (తెలుగు)</option>
-                <option value="mr">Marathi (मराठी)</option>
-                <option value="ta">Tamil (தமிழ்)</option>
-                <option value="ur">Urdu (اردو)</option>
-                <option value="gu">Gujarati (ગુજરાતી)</option>
-                <option value="kn">Kannada (ಕನ್ನಡ)</option>
-                <option value="ml">Malayalam (മലയാളം)</option>
-                <option value="or">Odia (ଓଡ଼ିଆ)</option>
-                <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
-                <option value="as">Assamese (অসমীয়া)</option>
-                <option value="ma">Maithili (मैथिली)</option>
-                <option value="sa">Sanskrit (संस्कृतम्)</option>
-                <option value="sd">Sindhi (سنڌي)</option>
-                <option value="ks">Kashmiri (کٲشُر)</option>
-                <option value="ne">Nepali (नेपाली)</option>
-                <option value="bho">Bhojpuri (भोजपुरी)</option>
-                <option value="ta">Santali (ᱥᱟᱱᱛᱟᱲᱤ)</option>
-                <option value="dog">Dogri (डोगरी)</option>
-                <option value="mni">Manipuri (মৈতৈলোন্)</option>
-                <option value="kok">Konkani (कोंकणी)</option>
-                <option value="doi">Dogri (डोगरी)</option>
-                <option value="brj">Braj (ब्रज भाषा)</option>
-                <option value="raj">Rajasthani (राजस्थानी)</option>
-                <option value="bh">Bihari (बिहारी)</option>
-                <option value="ch">Chhattisgarhi (छत्तीसगढ़ी)</option>
-                <option value="mag">Magahi (मगही)</option>
-                <option value="awa">Awadhi (अवधी)</option>
-                <option value="gom">Goan Konkani (कोंकणी)</option>
-                <option value="lep">Lepcha (ᰛᰩᰵᰛᰧᰵ)</option>
-                <option value="mtr">Mundari (ᱢᱩᱱᱫᱟᱨᱤ)</option>
-                <option value="ho">Ho (ᱦᱚ)</option>
-                <option value="sat">Santal (ᱥᱟᱱᱛᱟᱲᱤ)</option>
-                <option value="khn">Khasi (Ka Khasi)</option>
-                <option value="grt">Garo (A·chik)</option>
-                <option value="lus">Mizo (Mizo tawng)</option>
-                <option value="njz">Naga (Naga languages)</option>
-                <option value="en-IN">Other (Other Indian Language)</option>
-              </select>
-              <p className="mt-1 text-xs text-black/70 dark:text-slate-400">
-                Select your Language
-              </p>
-            </div>
               <div>
-                <label htmlFor="region" className="block text-sm font-medium text-black mb-1 dark:text-white">
+                <label htmlFor="language" className="block text-sm font-medium text-foreground mb-1">
+                  Language
+                </label>
+                <select
+                  id="language"
+                  name="language"
+                  value={formData.language}
+                  onChange={handleInputChange}
+                  className="block w-full px-3 py-2.5 bg-white/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm transition-colors dark:bg-slate-800/50 dark:border-slate-600 dark:text-white"
+                >
+                  <option value="en">English</option>
+                  <option value="hi">Hindi (हिन्दी)</option>
+                  <option value="bn">Bengali (বাংলা)</option>
+                  <option value="te">Telugu (తెలుగు)</option>
+                  <option value="mr">Marathi (मराठी)</option>
+                  <option value="ta">Tamil (தமிழ்)</option>
+                  <option value="ur">Urdu (اردو)</option>
+                  <option value="gu">Gujarati (ગુજરાતી)</option>
+                  <option value="kn">Kannada (ಕನ್ನಡ)</option>
+                  <option value="ml">Malayalam (മലയാളം)</option>
+                  <option value="or">Odia (ଓଡ଼ିଆ)</option>
+                  <option value="pa">Punjabi (ਪੰਜਾਬੀ)</option>
+                  <option value="as">Assamese (অসমীয়া)</option>
+                  <option value="ma">Maithili (मैथिली)</option>
+                  <option value="sa">Sanskrit (संस्कृतम्)</option>
+                  <option value="sd">Sindhi (سنڌي)</option>
+                  <option value="ks">Kashmiri (کٲشُر)</option>
+                  <option value="ne">Nepali (नेपाली)</option>
+                  <option value="bho">Bhojpuri (भोजपुरी)</option>
+                  <option value="ta">Santali (ᱥᱟᱱᱛᱟᱲᱤ)</option>
+                  <option value="dog">Dogri (डोगरी)</option>
+                  <option value="mni">Manipuri (মৈতৈলোন্)</option>
+                  <option value="kok">Konkani (कोंकणी)</option>
+                  <option value="doi">Dogri (डोगरी)</option>
+                  <option value="brj">Braj (ब्रज भाषा)</option>
+                  <option value="raj">Rajasthani (राजस्थानी)</option>
+                  <option value="bh">Bihari (बिहारी)</option>
+                  <option value="ch">Chhattisgarhi (छत्तीसगढ़ी)</option>
+                  <option value="mag">Magahi (मगही)</option>
+                  <option value="awa">Awadhi (अवधी)</option>
+                  <option value="gom">Goan Konkani (कोंकणी)</option>
+                  <option value="lep">Lepcha (ᰛᰩᰵᰛᰧᰵ)</option>
+                  <option value="mtr">Mundari (ᱢᱩᱱᱫᱟᱨᱤ)</option>
+                  <option value="ho">Ho (ᱦᱚ)</option>
+                  <option value="sat">Santal (ᱥᱟᱱᱛᱟᱲᱤ)</option>
+                  <option value="khn">Khasi (Ka Khasi)</option>
+                  <option value="grt">Garo (A·chik)</option>
+                  <option value="lus">Mizo (Mizo tawng)</option>
+                  <option value="njz">Naga (Naga languages)</option>
+                  <option value="en-IN">Other (Other Indian Language)</option>
+                </select>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Select your Language
+                </p>
+              </div>
+              <div>
+                <label htmlFor="region" className="block text-sm font-medium text-foreground mb-1">
                   Region/State
                 </label>
                 <select
@@ -236,7 +250,7 @@ const Register: React.FC = () => {
                   name="region"
                   value={formData.region}
                   onChange={handleInputChange}
-                  className="block w-full px-3 py-2.5 bg-white border border-[#e6e1d5] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#CDA047] focus:border-[#CDA047] text-sm transition-colors dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+                  className="block w-full px-3 py-2.5 bg-white/50 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary text-sm transition-colors dark:bg-slate-800/50 dark:border-slate-600 dark:text-white"
                 >
                   <option value="">Select Region</option>
                   <option value="andhra-pradesh">Andhra Pradesh</option>
@@ -283,6 +297,7 @@ const Register: React.FC = () => {
                 error={errors.password}
                 placeholder="Create a strong password"
                 required
+                className="bg-white/50 dark:bg-slate-800/50"
               />
               <Input
                 label="Confirm Password"
@@ -293,22 +308,23 @@ const Register: React.FC = () => {
                 error={errors.confirmPassword}
                 placeholder="Confirm your password"
                 required
+                className="bg-white/50 dark:bg-slate-800/50"
               />
             </div>
             <Button
               type="submit"
               loading={loading}
-              className="w-full bg-gradient-to-br from-[#e5e7eb] via-[#f3f4f6] to-[#f9fafb] text-[#1a237e] font-bold text-lg rounded-full shadow-lg transition border border-[#b1b4b6] hover:bg-[#e0e7ef] dark:from-slate-700 dark:via-slate-800 dark:to-slate-900 dark:text-white dark:border-slate-600 dark:hover:from-slate-600 dark:hover:via-slate-700 dark:hover:to-slate-800"
+              className="w-full btn-primary py-3 text-base"
               size="lg"
             >
               Create Account
             </Button>
             <div className="text-center">
-              <p className="text-sm text-gray-600 dark:text-slate-400">
+              <p className="text-sm text-muted-foreground">
                 Already have an account?{' '}
                 <Link
                   to="/login"
-                  className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300"
+                  className="font-medium text-primary hover:text-primary-700 transition-colors"
                 >
                   Sign in
                 </Link>
@@ -316,7 +332,7 @@ const Register: React.FC = () => {
             </div>
           </form>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

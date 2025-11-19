@@ -5,12 +5,13 @@ import Input from "../../components/common/Input";
 import {
   signInWithEmailAndPassword,
   signInWithPopup,
-  GoogleAuthProvider, 
+  GoogleAuthProvider,
 } from "firebase/auth";
 import { auth } from "../../utils/firebase";
 import { toast } from "react-toastify";
 import { getCurrentUserAsync, registerAsync } from "../../store/authSlice";
 import { useAppDispatch } from "../../hooks/redux";
+import { motion } from "framer-motion";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Login: React.FC = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pendingGoogleCred, setPendingGoogleCred] = useState<any>(null);
   const dispatch = useAppDispatch();
-  
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -36,7 +37,7 @@ const Login: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setErrors({});
-    
+
     // Check if we're in mock mode
     if (import.meta.env.VITE_USE_MOCK_API === 'true') {
       try {
@@ -58,7 +59,7 @@ const Login: React.FC = () => {
             }
           }
         });
-        
+
         localStorage.setItem("idToken", "mock-token");
         toast.success("Login successful (mock)!");
         setLoading(false);
@@ -71,15 +72,15 @@ const Login: React.FC = () => {
         return;
       }
     }
-    
+
     // Firebase login
     try {
       if (!auth) {
         throw new Error("Firebase auth is not initialized");
       }
-      
+
       const userCredential = await signInWithEmailAndPassword(
-        auth,
+        auth!,
         formData.email,
         formData.password
       );
@@ -97,7 +98,7 @@ const Login: React.FC = () => {
       // Save token to localStorage
       const idToken = await userCredential.user.getIdToken();
       localStorage.setItem("idToken", idToken);
-      
+
       // Update auth state directly instead of relying on getCurrentUserAsync
       dispatch({
         type: 'auth/getCurrentUser/fulfilled',
@@ -116,7 +117,7 @@ const Login: React.FC = () => {
           }
         }
       });
-      
+
       toast.success("Login successful!");
       setLoading(false);
       navigate("/dashboard");
@@ -130,7 +131,7 @@ const Login: React.FC = () => {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     setErrors({});
-    
+
     // Check if we're in mock mode
     if (import.meta.env.VITE_USE_MOCK_API === 'true') {
       try {
@@ -152,7 +153,7 @@ const Login: React.FC = () => {
             }
           }
         });
-        
+
         localStorage.setItem("idToken", "mock-google-token");
         toast.success("Google login successful (mock)!");
         setGoogleLoading(false);
@@ -165,17 +166,17 @@ const Login: React.FC = () => {
         return;
       }
     }
-    
+
     // Firebase Google login
     if (!auth) {
       setGoogleLoading(false);
       toast.error("Firebase auth is not initialized");
       return;
     }
-    
+
     const provider = new GoogleAuthProvider();
     try {
-      const credential = await signInWithPopup(auth, provider);
+      const credential = await signInWithPopup(auth!, provider);
 
       // Get ID token properly from the user object
       const idToken = await credential.user.getIdToken();
@@ -200,7 +201,7 @@ const Login: React.FC = () => {
         }
         setGoogleLoading(false);
       }
-      
+
       // Update auth state directly instead of relying on getCurrentUserAsync
       dispatch({
         type: 'auth/getCurrentUser/fulfilled',
@@ -219,7 +220,7 @@ const Login: React.FC = () => {
           }
         }
       });
-      
+
       setGoogleLoading(false);
       navigate("/dashboard");
     } catch (error: any) {
@@ -254,65 +255,80 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 dark:bg-slate-900">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-16 w-16 rounded-full bg-primary-600 flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">LK</span>
+    <div className="min-h-screen flex items-center justify-center bg-background relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/10 rounded-full blur-[120px] opacity-50" />
+        <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-blue-600/5 rounded-full blur-[100px] opacity-30" />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-md w-full space-y-8 relative z-10"
+      >
+        <div className="glass-panel p-10 rounded-2xl shadow-2xl border border-white/20">
+          <div className="text-center">
+            <div className="mx-auto h-14 w-14 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+              <span className="text-white text-2xl font-bold">LK</span>
+            </div>
+            <h2 className="mt-6 text-3xl font-display font-bold text-foreground">
+              Welcome Back
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sign in to access your legal dashboard
+            </p>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Welcome back to LegalKlarity
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-slate-400">
-            Sign in to your account
-          </p>
-        </div>
-        
-        <div className="mt-8 bg-white py-8 px-4 shadow rounded-lg sm:px-10 dark:bg-slate-800">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <Input
-              label="Email address"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              error={errors.email}
-              placeholder="Enter your email"
-              required
-            />
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              error={errors.password}
-              placeholder="Enter your password"
-              required
-            />
-            
+
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <Input
+                label="Email address"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                error={errors.email}
+                placeholder="Enter your email"
+                required
+                className="bg-white/50 dark:bg-slate-800/50"
+              />
+              <Input
+                label="Password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                error={errors.password}
+                placeholder="Enter your password"
+                required
+                className="bg-white/50 dark:bg-slate-800/50"
+              />
+            </div>
+
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded dark:bg-slate-700 dark:border-slate-600"
+                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded dark:bg-slate-700 dark:border-slate-600"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-white">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-foreground">
                   Remember me
                 </label>
               </div>
-              
+
               <div className="text-sm">
-                <Link to="/forgot-password" className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
-                  Forgot your password?
+                <Link to="/forgot-password" className="font-medium text-primary hover:text-primary-700 transition-colors">
+                  Forgot password?
                 </Link>
               </div>
             </div>
-            
+
             {errors.general && (
-              <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
+              <div className="rounded-lg bg-red-50 p-4 dark:bg-red-900/20 border border-red-100 dark:border-red-800">
                 <div className="flex">
                   <div className="flex-shrink-0">
                     <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -327,11 +343,11 @@ const Login: React.FC = () => {
                 </div>
               </div>
             )}
-            
+
             <div>
-              <Button 
-                type="submit" 
-                className="w-full" 
+              <Button
+                type="submit"
+                className="w-full btn-primary py-3 text-base"
                 loading={loading}
                 size="lg"
               >
@@ -339,45 +355,45 @@ const Login: React.FC = () => {
               </Button>
             </div>
           </form>
-          
+
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-slate-700" />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500 dark:bg-slate-800 dark:text-slate-400">
+                <span className="px-2 bg-white dark:bg-slate-900 text-muted-foreground">
                   Or continue with
                 </span>
               </div>
             </div>
-            
+
             <div className="mt-6">
               <Button
                 onClick={handleGoogleLogin}
                 type="button"
                 variant="outline"
-                className="w-full flex items-center justify-center"
+                className="w-full flex items-center justify-center py-3 border-border hover:bg-muted/50"
                 loading={googleLoading}
               >
                 <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z"/>
+                  <path d="M12.24 10.285V14.4h6.806c-.275 1.765-2.056 5.174-6.806 5.174-4.095 0-7.439-3.389-7.439-7.574s3.345-7.574 7.439-7.574c2.33 0 3.891.989 4.785 1.849l3.254-3.138C18.189 1.186 15.479 0 12.24 0c-6.635 0-12 5.365-12 12s5.365 12 12 12c6.926 0 11.52-4.869 11.52-11.726 0-.788-.085-1.39-.189-1.989H12.24z" />
                 </svg>
-                <span className="ml-2">Sign in with Google</span>
+                <span className="ml-2 font-medium">Sign in with Google</span>
               </Button>
             </div>
           </div>
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-slate-400">
+
+          <div className="mt-8 text-center">
+            <p className="text-sm text-muted-foreground">
               Don't have an account?{' '}
-              <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300">
-                Sign up
+              <Link to="/register" className="font-medium text-primary hover:text-primary-700 transition-colors">
+                Create an account
               </Link>
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

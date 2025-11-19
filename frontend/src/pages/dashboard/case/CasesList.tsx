@@ -1,15 +1,19 @@
 import React, { useState } from "react";
-import { Search, Scale, BookOpen, ArrowRight, Loader2 } from "lucide-react";
+import { Search, Scale, BookOpen, ArrowRight, Loader2, Gavel } from "lucide-react";
 import { caseSummaryAsync, searchCaseAsync } from "../../../store/caseSlice";
 import { useAppDispatch } from "../../../hooks/redux";
 import { toast } from "react-toastify";
 import CaseDetail from "./CaseDetail";
+import { motion } from "framer-motion";
 
 function Spinner({ loading, detailLoading }: { loading: boolean; detailLoading: boolean }) {
     return (
         <div className="flex flex-col items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
-            <p className="text-gray-600 dark:text-slate-400">
+            <div className="relative mb-4">
+                <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+                <Loader2 className="h-12 w-12 text-primary animate-spin relative z-10" />
+            </div>
+            <p className="text-muted-foreground font-medium">
                 {loading ? "Searching cases..." : detailLoading ? "Loading case summary..." : "Processing..."}
             </p>
         </div>
@@ -87,148 +91,171 @@ const CasesList: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
-            {/* Header */}
-            <div className="bg-white shadow-sm dark:bg-slate-800 dark:shadow-slate-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    <div className="text-center">
-                        <div className="flex items-center justify-center mb-4">
-                            <div className="flex items-center justify-center h-12 w-12 rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                                <Scale className="h-6 w-6" />
-                            </div>
-                        </div>
-                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 dark:text-white">
-                            Legal Case Explorer
-                        </h1>
-                        <p className="text-lg text-gray-600 max-w-3xl mx-auto dark:text-slate-300">
-                            Search and analyze landmark Indian legal cases with AI-powered summaries
-                        </p>
-                    </div>
-                </div>
+        <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+            {/* Background Elements */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[100px]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-500/5 blur-[100px]" />
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Search Section */}
-                <div className="bg-white rounded-xl shadow-sm p-6 mb-8 border border-gray-200 dark:bg-slate-800 dark:border-slate-700">
-                    <div className="max-w-3xl mx-auto">
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="h-5 w-5 text-gray-400 dark:text-slate-500" />
-                            </div>
-                            <input
-                                value={query}
-                                onChange={(e) => setQuery(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                placeholder="Search by case title, citation, keywords, or legal topics..."
-                                className="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:placeholder-slate-400"
-                            />
-                        </div>
-                        <div className="mt-4 flex justify-center">
-                            <button
-                                onClick={() => handleSearch()}
-                                disabled={loading}
-                                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 dark:from-primary-700 dark:to-indigo-700 dark:hover:from-primary-600 dark:hover:to-indigo-600 dark:focus:ring-offset-slate-900"
-                            >
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                                        Searching...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Search className="mr-2 h-5 w-5" />
-                                        Search Cases
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                        <div className="mt-4 text-center">
-                            <p className="text-sm text-gray-500 dark:text-slate-400">
-                                Examples: <span className="text-gray-700 dark:text-slate-300">Article 15, Consumer Protection, Criminal Law, Constitutional Law</span>
-                            </p>
+            <div className="max-w-7xl mx-auto">
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center mb-12"
+                >
+                    <div className="flex items-center justify-center mb-6">
+                        <div className="p-4 rounded-2xl bg-primary/10 text-primary shadow-lg shadow-primary/10">
+                            <Scale className="h-8 w-8" />
                         </div>
                     </div>
-                </div>
+                    <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-4">
+                        Legal Case <span className="text-gradient">Explorer</span>
+                    </h1>
+                    <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                        Search and analyze landmark Indian legal cases with AI-powered summaries
+                    </p>
+                </motion.div>
+
+                {/* Search Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="glass-panel p-8 rounded-2xl border border-white/10 mb-12 max-w-4xl mx-auto"
+                >
+                    <div className="relative mb-6">
+                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <Search className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                        <input
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                            placeholder="Search by case title, citation, keywords, or legal topics..."
+                            className="block w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-primary/50 focus:border-primary/50 outline-none transition-all"
+                        />
+                    </div>
+
+                    <div className="flex justify-center mb-8">
+                        <button
+                            onClick={() => handleSearch()}
+                            disabled={loading}
+                            className="btn-primary py-3 px-8 rounded-xl flex items-center gap-2 shadow-lg shadow-primary/20"
+                        >
+                            {loading ? (
+                                <>
+                                    <Loader2 className="animate-spin h-5 w-5" />
+                                    Searching...
+                                </>
+                            ) : (
+                                <>
+                                    <Search className="h-5 w-5" />
+                                    Search Cases
+                                </>
+                            )}
+                        </button>
+                    </div>
+
+                    <div className="text-center">
+                        <p className="text-sm text-muted-foreground mb-4">Popular Topics:</p>
+                        <div className="flex flex-wrap justify-center gap-3">
+                            {['Constitutional Law', 'Criminal Law', 'Civil Law', 'Corporate Law'].map((topic) => (
+                                <button
+                                    key={topic}
+                                    onClick={() => handleSearch(topic)}
+                                    className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-foreground transition-colors"
+                                >
+                                    {topic}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </motion.div>
 
                 {/* Results or Detail */}
                 {loading || detailLoading ? (
-                    <div className="bg-white rounded-xl shadow-sm p-8 border border-gray-200 dark:bg-slate-800 dark:border-slate-700">
+                    <div className="glass-panel p-12 rounded-2xl border border-white/10 text-center">
                         <Spinner loading={loading} detailLoading={detailLoading} />
                     </div>
                 ) : selectedCase ? (
                     <CaseDetail caseItem={selectedCase} />
                 ) : (
                     <div className="space-y-6">
-                        {results.length > 0 && (
-                            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 dark:bg-slate-800 dark:border-slate-700">
-                                <div className="flex items-center mb-6">
-                                    <BookOpen className="h-5 w-5 text-blue-600 mr-2 dark:text-blue-400" />
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                                        Search Results ({results.length} cases found)
+                        {results.length > 0 ? (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="glass-panel p-8 rounded-2xl border border-white/10"
+                            >
+                                <div className="flex items-center mb-8">
+                                    <BookOpen className="h-6 w-6 text-primary mr-3" />
+                                    <h2 className="text-2xl font-display font-bold text-foreground">
+                                        Search Results <span className="text-muted-foreground text-lg font-normal ml-2">({results.length} cases found)</span>
                                     </h2>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {results.map((caseItem) => (
-                                        <div 
+                                    {results.map((caseItem, index) => (
+                                        <motion.div
                                             key={caseItem.tid}
-                                            className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-all duration-300 hover:border-primary-300 bg-white dark:bg-slate-700 dark:border-slate-600 dark:hover:border-primary-500 dark:hover:shadow-slate-800/50"
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: index * 0.05 }}
+                                            className="glass-card p-6 rounded-xl border border-white/10 hover:border-primary/30 transition-all duration-300 group flex flex-col h-full"
                                         >
-                                            <div className="flex items-start justify-between mb-3">
-                                                <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 dark:text-white">
-                                                    {stripBoldTags(caseItem.title)}
-                                                </h3>
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
+                                                    <Gavel size={18} />
+                                                </div>
+                                                <span className="text-xs font-medium px-2 py-1 rounded-full bg-white/5 border border-white/10 text-muted-foreground">
+                                                    {caseItem.publishdate}
+                                                </span>
                                             </div>
-                                            
-                                            <div className="space-y-2 mb-4">
-                                                <p className="text-xs text-gray-500 dark:text-slate-400">
+
+                                            <h3 className="font-display font-semibold text-foreground text-lg mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                                                {stripBoldTags(caseItem.title)}
+                                            </h3>
+
+                                            <div className="space-y-2 mb-6 flex-grow">
+                                                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                                                     {caseItem.docsource}
                                                 </p>
-                                                <p className="text-xs text-gray-600 dark:text-slate-300">
-                                                    {caseItem.publishdate}
-                                                </p>
-                                                <p className="text-xs font-medium text-primary-600 dark:text-primary-400">
+                                                <p className="text-xs font-medium text-primary/80 bg-primary/5 px-2 py-1 rounded w-fit">
                                                     {caseItem.citation}
                                                 </p>
                                             </div>
-                                            
+
                                             <button
                                                 onClick={() => handleCaseSummary(caseItem.tid)}
                                                 disabled={detailLoading}
-                                                className="inline-flex items-center text-sm font-medium text-primary-600 hover:text-primary-700 transition-colors dark:text-primary-400 dark:hover:text-primary-300"
+                                                className="w-full py-2 rounded-lg bg-white/5 hover:bg-primary hover:text-white border border-white/10 hover:border-primary/50 text-sm font-medium transition-all flex items-center justify-center gap-2 group/btn"
                                             >
                                                 View Summary
-                                                <ArrowRight className="ml-1 h-4 w-4" />
+                                                <ArrowRight className="h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
                                             </button>
-                                        </div>
+                                        </motion.div>
                                     ))}
                                 </div>
-                            </div>
-                        )}
-                        
-                        {results.length === 0 && !loading && (
-                            <div className="bg-white rounded-xl shadow-sm p-12 border border-gray-200 text-center dark:bg-slate-800 dark:border-slate-700">
-                                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/30">
-                                    <Scale className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                                </div>
-                                <h3 className="mt-4 text-xl font-medium text-gray-900 dark:text-white">Search Legal Cases</h3>
-                                <p className="mt-2 text-gray-500 dark:text-slate-400">
-                                    Enter a legal topic, case name, or citation above to explore landmark Indian court decisions.
-                                </p>
-                                <div className="mt-6">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                                        {['Constitutional Law', 'Criminal Law', 'Civil Law', 'Corporate Law'].map((topic) => (
-                                            <button
-                                                key={topic}
-                                                onClick={() => handleSearch(topic)}
-                                                className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white dark:hover:bg-slate-600 dark:focus:ring-offset-slate-900"
-                                            >
-                                                {topic}
-                                            </button>
-                                        ))}
+                            </motion.div>
+                        ) : (
+                            !loading && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="glass-panel p-16 rounded-2xl border border-white/10 text-center max-w-2xl mx-auto"
+                                >
+                                    <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-primary/10 text-primary mb-6">
+                                        <Scale className="h-10 w-10" />
                                     </div>
-                                </div>
-                            </div>
+                                    <h3 className="text-2xl font-display font-bold text-foreground mb-3">Start Your Legal Research</h3>
+                                    <p className="text-muted-foreground">
+                                        Enter a legal topic, case name, or citation above to explore landmark Indian court decisions with AI-powered insights.
+                                    </p>
+                                </motion.div>
+                            )
                         )}
                     </div>
                 )}
@@ -238,3 +265,4 @@ const CasesList: React.FC = () => {
 };
 
 export default CasesList;
+

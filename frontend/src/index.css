@@ -5,221 +5,176 @@
 @tailwind utilities;
 
 @layer base {
-  /* Global font settings for LegalKlarity */
-  html {
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    font-feature-settings: 'cv11', 'ss01';
-    font-variation-settings: 'opsz' 32;
+  :root {
+    /* Maroon & Beach Theme - Light Mode */
+    --background: 43 33% 96%;
+    /* Cream #F9F7F2 */
+    --foreground: 17 47% 12%;
+    /* Dark Brown #2C1810 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 17 47% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 17 47% 12%;
+
+    --primary: 0 100% 25%;
+    /* Deep Maroon #800000 */
+    --primary-foreground: 43 33% 96%;
+
+    --secondary: 43 40% 83%;
+    /* Sand #E6DCC3 */
+    --secondary-foreground: 17 47% 12%;
+
+    --muted: 43 20% 90%;
+    --muted-foreground: 17 20% 40%;
+
+    --accent: 46 65% 52%;
+    /* Gold #D4AF37 */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 43 20% 85%;
+    --input: 43 20% 85%;
+    --ring: 0 100% 25%;
+
+    --radius: 0.5rem;
   }
-  
+
+  .dark {
+    /* Maroon & Beach Theme - Dark Mode (Deep Warmth) */
+    --background: 17 47% 8%;
+    /* Very Dark Brown */
+    --foreground: 43 33% 96%;
+
+    --card: 17 47% 10%;
+    --card-foreground: 43 33% 96%;
+
+    --popover: 17 47% 10%;
+    --popover-foreground: 43 33% 96%;
+
+    --primary: 0 70% 40%;
+    /* Lighter Maroon for dark mode */
+    --primary-foreground: 43 33% 96%;
+
+    --secondary: 17 30% 20%;
+    --secondary-foreground: 43 33% 96%;
+
+    --muted: 17 30% 20%;
+    --muted-foreground: 43 20% 70%;
+
+    --accent: 46 65% 52%;
+    /* Gold stays same */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 17 30% 20%;
+    --input: 17 30% 20%;
+    --ring: 0 70% 40%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
   body {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-weight: 400;
-    line-height: 1.6;
-    color: #374151;
-    background-color: #ffffff;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    @apply bg-background text-foreground font-sans antialiased;
+    background-image:
+      radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.08), transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(128, 0, 0, 0.05), transparent 25%);
+    background-attachment: fixed;
   }
-  
-  /* Dark mode body */
-  .dark body {
-    color: #d1d5db;
-    background-color: #0f172a;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display tracking-tight;
   }
-  
-  /* Headings use Inter with refined hierarchy */
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-weight: 700;
-    line-height: 1.2;
-    color: #111827;
-  }
-  
-  .dark h1, 
-  .dark h2, 
-  .dark h3, 
-  .dark h4, 
-  .dark h5, 
-  .dark h6 {
-    color: #f1f5f9;
-  }
-  
+
   h1 {
-    font-weight: 800;
+    @apply font-display font-bold;
   }
-  
-  /* Display headings with Playfair Display */
-  .display-font {
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/60 dark:bg-black/40 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-glass;
   }
-  
-  /* Professional button and form styling */
-  button, input, select, textarea {
-    font-family: inherit;
+
+  .glass-card {
+    @apply bg-white/40 dark:bg-white/5 backdrop-blur-lg border border-white/20 dark:border-white/10 shadow-sm hover:shadow-glass-hover transition-all duration-300;
   }
-  
-  /* Improved readability for legal content */
-  .legal-content {
-    font-family: 'Inter', system-ui, sans-serif;
-    line-height: 1.7;
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-900 via-primary-700 to-primary-500;
   }
-  
-  /* Professional table styling */
-  table {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-variant-numeric: tabular-nums;
+
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-400;
   }
-  
-  /* Focus styles */
-  :focus {
-    outline: 2px solid #6366f1;
-    outline-offset: 2px;
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-glow transition-all duration-300 font-medium px-6 py-2.5 rounded-lg active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-sm hover:shadow-md transition-all duration-300 font-medium px-6 py-2.5 rounded-lg active:scale-95;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary/5 transition-all duration-300 font-medium px-6 py-2.5 rounded-lg active:scale-95;
+  }
+
+  .input-field {
+    @apply bg-white/50 dark:bg-black/20 border-input focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 backdrop-blur-sm;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 rounded-full hover:bg-primary/40 transition-colors;
   }
 }
 
 @layer components {
-  /* Custom utility classes */
-  .font-display {
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    line-height: 1.1;
+  .container-custom {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
   }
-  
-  .font-ui {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-weight: 500;
-  }
-  
-  .font-data {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-variant-numeric: tabular-nums;
-    font-weight: 400;
-  }
-  
-  /* Card component */
-  .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden;
-  }
-  
-  .dark .card {
-    @apply bg-slate-800 border-slate-700;
-  }
-  
-  .card-hover {
-    @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition;
-  }
-  
-  .dark .card-hover {
-    @apply bg-slate-800 border-slate-700 hover:shadow-lg;
-  }
-  
-  /* Button variants */
-  .btn {
-    @apply inline-flex items-center justify-center rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2;
-  }
-  
-  .dark .btn {
-    @apply focus:ring-offset-slate-900;
-  }
-  
-  .btn-primary {
-    @apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500;
-  }
-  
-  .btn-secondary {
-    @apply btn bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500;
-  }
-  
-  .btn-outline {
-    @apply btn border border-gray-300 text-gray-700 hover:bg-gray-50 focus:ring-primary-500;
-  }
-  
-  .dark .btn-outline {
-    @apply border-slate-600 text-slate-200 hover:bg-slate-800 focus:ring-primary-500;
-  }
-  
-  .btn-ghost {
-    @apply btn text-gray-700 hover:bg-gray-100 focus:ring-primary-500;
-  }
-  
-  .dark .btn-ghost {
-    @apply text-slate-200 hover:bg-slate-800 focus:ring-primary-500;
-  }
-  
-  /* Form elements */
-  .input {
-    @apply block w-full rounded-lg border border-gray-300 bg-white py-2 px-3 text-gray-900 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
-  }
-  
-  .dark .input {
-    @apply bg-slate-800 border-slate-600 text-slate-100 focus:border-primary-500 focus:ring-primary-500;
-  }
-  
-  .input-error {
-    @apply input border-red-300 text-red-900 placeholder-red-300 focus:border-red-500 focus:ring-red-500;
-  }
-  
-  .dark .input-error {
-    @apply border-red-500 text-red-300 placeholder-red-400;
-  }
-  
-  /* Badge component */
-  .badge {
-    @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium;
-  }
-  
-  .badge-primary {
-    @apply badge bg-primary-100 text-primary-800;
-  }
-  
-  .dark .badge-primary {
-    @apply bg-primary-900 text-primary-200;
-  }
-  
-  .badge-secondary {
-    @apply badge bg-secondary-100 text-secondary-800;
-  }
-  
-  .dark .badge-secondary {
-    @apply bg-secondary-900 text-secondary-200;
-  }
-  
-  /* Alert component */
-  .alert {
-    @apply rounded-lg p-4;
-  }
-  
-  .alert-info {
-    @apply alert bg-blue-50 text-blue-800;
-  }
-  
-  .dark .alert-info {
-    @apply bg-blue-900 text-blue-200;
-  }
-  
-  .alert-success {
-    @apply alert bg-green-50 text-green-800;
-  }
-  
-  .dark .alert-success {
-    @apply bg-green-900 text-green-200;
-  }
-  
-  .alert-warning {
-    @apply alert bg-yellow-50 text-yellow-800;
-  }
-  
-  .dark .alert-warning {
-    @apply bg-yellow-900 text-yellow-200;
-  }
-  
-  .alert-error {
-    @apply alert bg-red-50 text-red-800;
-  }
-  
-  .dark .alert-error {
-    @apply bg-red-900 text-red-200;
-  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
 }
